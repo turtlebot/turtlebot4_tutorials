@@ -32,7 +32,7 @@ def main():
         navigator.dock()
 
     # Set initial pose
-    initial_pose = navigator.getPoseStamped([0.0, 0.0], 0)
+    initial_pose = navigator.getPoseStamped([0.0, 0.0], TurtleBot4Directions.NORTH)
     navigator.setInitialPose(initial_pose)
 
     # Wait for Nav2
