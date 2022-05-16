@@ -20,7 +20,10 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'turtlebot4_first_python_node = turtlebot4_python_tutorials.turtlebot4_first_python_node:main'
+            'turtlebot4_first_python_node = turtlebot4_python_tutorials.turtlebot4_first_python_node:main',
+            'nav_to_pose = turtlebot4_python_tutorials.nav_to_pose:main',
+            'nav_through_poses = turtlebot4_python_tutorials.nav_through_poses:main',
+            'follow_waypoints = turtlebot4_python_tutorials.follow_waypoints:main',
         ],
     },
 )
