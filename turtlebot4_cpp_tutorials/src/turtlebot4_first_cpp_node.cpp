@@ -100,9 +100,7 @@ private:
       lightring_msg.leds[5].red = 0;
       lightring_msg.leds[5].blue = 255;
       lightring_msg.leds[5].green = 255;
-    }
-    // Lights are currently on
-    else {
+    } else {
       // Disable system override. The system will take back control of the lightring.
       lightring_msg.override_system = false;
     }
