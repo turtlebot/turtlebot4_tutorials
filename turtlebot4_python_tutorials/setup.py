@@ -25,6 +25,7 @@ setup(
             'nav_to_pose = turtlebot4_python_tutorials.nav_to_pose:main',
             'nav_through_poses = turtlebot4_python_tutorials.nav_through_poses:main',
             'follow_waypoints = turtlebot4_python_tutorials.follow_waypoints:main',
+            'create_path = turtlebot4_python_tutorials.create_path:main',
         ],
     },
 )
