@@ -16,13 +16,14 @@
 #
 # @author Hilary Luo (hluo@clearpathrobotics.com)
 
-import rclpy
-
-from rclpy.node import Node
-from rclpy.qos import qos_profile_sensor_data
-from rclpy.executors import SingleThreadedExecutor
 from threading import Lock, Thread
 from time import sleep
+
+import rclpy
+
+from rclpy.executors import SingleThreadedExecutor
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 
 from sensor_msgs.msg import BatteryState
 from turtlebot4_navigation.turtlebot4_navigator import TurtleBot4Directions, TurtleBot4Navigator
@@ -30,6 +31,7 @@ from turtlebot4_navigation.turtlebot4_navigator import TurtleBot4Directions, Tur
 BATTERY_HIGH = 0.95
 BATTERY_LOW = 0.2  # when the robot will go charge
 BATTERY_CRITICAL = 0.1  # when the robot will shutdown
+
 
 class BatteryMonitor(Node):
 
@@ -54,6 +56,7 @@ class BatteryMonitor(Node):
         executor = SingleThreadedExecutor()
         executor.add_node(self)
         executor.spin()
+
 
 def main(args=None):
     rclpy.init(args=args)
@@ -89,7 +92,7 @@ def main(args=None):
     goal_pose.append(navigator.getPoseStamped([-5.0, -23.0], TurtleBot4Directions.NORTH))
     goal_pose.append(navigator.getPoseStamped([9.0, -23.0], TurtleBot4Directions.NORTH_WEST))
     goal_pose.append(navigator.getPoseStamped([10.0, 2.0], TurtleBot4Directions.WEST))
-    
+
     while True:
         with lock:
             battery_percent = battery_monitor.battery_percent
@@ -99,16 +102,17 @@ def main(args=None):
 
             # Check battery charge level
             if (battery_percent < BATTERY_CRITICAL):
-                navigator.error("Battery critically low. Charge or power down")
+                navigator.error('Battery critically low. Charge or power down')
                 break
             elif (battery_percent < BATTERY_LOW):
                 # Go near the dock
                 navigator.info('Docking for charge')
-                navigator.startToPose(navigator.getPoseStamped([-1.0, 1.0], TurtleBot4Directions.EAST))
+                navigator.startToPose(navigator.getPoseStamped([-1.0, 1.0],
+                                      TurtleBot4Directions.EAST))
                 navigator.dock()
 
                 if not navigator.getDockedStatus():
-                    navigator.error("Robot failed to dock")
+                    navigator.error('Robot failed to dock')
                     break
 
                 # Wait until charged
@@ -122,9 +126,9 @@ def main(args=None):
                 # Undock
                 navigator.undock()
                 position_index = 0
-                
+
             else:
-                #Navigate to next position
+                # Navigate to next position
                 navigator.startToPose(goal_pose[position_index])
 
                 position_index = position_index + 1
@@ -133,6 +137,7 @@ def main(args=None):
 
     battery_monitor.destroy_node()
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()

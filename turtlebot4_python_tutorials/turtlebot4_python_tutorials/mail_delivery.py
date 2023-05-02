@@ -16,10 +16,11 @@
 #
 # @author Hilary Luo (hluo@clearpathrobotics.com)
 
-import rclpy
-
 from operator import itemgetter
+
 from pick import pick
+
+import rclpy
 
 from turtlebot4_navigation.turtlebot4_navigator import TurtleBot4Directions, TurtleBot4Navigator
 
@@ -45,28 +46,41 @@ def main(args=None):
     navigator.undock()
 
     # Prepare goal pose options
-    goal_options = []
-    goal_options.append({'name': 'Home', 'pose': navigator.getPoseStamped([-1.0, 1.0], TurtleBot4Directions.EAST)})
-    goal_options.append({'name': 'Position 1', 'pose': navigator.getPoseStamped([10.0, 6.0], TurtleBot4Directions.EAST)})
-    goal_options.append({'name': 'Position 2', 'pose': navigator.getPoseStamped([-9.0, 9.0], TurtleBot4Directions.NORTH)})
-    goal_options.append({'name': 'Position 3', 'pose': navigator.getPoseStamped([-12.0, 2.0], TurtleBot4Directions.NORTH_WEST)})
-    goal_options.append({'name': 'Position 4', 'pose': navigator.getPoseStamped([3.0, -7.0], TurtleBot4Directions.WEST)})
-    goal_options.append({'name': 'Exit', 'pose': None})
-    
-    message= 'Welcome to the mail delivery service. Choose the destination (use arrow keys).'
-    
+    goal_options = [
+        {'name': 'Home',
+         'pose': navigator.getPoseStamped([-1.0, 1.0], TurtleBot4Directions.EAST)},
+
+        {'name': 'Position 1',
+         'pose': navigator.getPoseStamped([10.0, 6.0], TurtleBot4Directions.EAST)},
+
+        {'name': 'Position 2',
+         'pose': navigator.getPoseStamped([-9.0, 9.0], TurtleBot4Directions.NORTH)},
+
+        {'name': 'Position 3',
+         'pose': navigator.getPoseStamped([-12.0, 2.0], TurtleBot4Directions.NORTH_WEST)},
+
+        {'name': 'Position 4',
+         'pose': navigator.getPoseStamped([3.0, -7.0], TurtleBot4Directions.WEST)},
+
+        {'name': 'Exit',
+         'pose': None}
+    ]
+
+    message = 'Welcome to the mail delivery service. Choose the destination (use arrow keys).'
+
     while True:
         # Prompt the user for the goal location
         selection, index = pick(list(map(itemgetter('name'), goal_options)), message)
 
         # Check for exit
-        if selection is 'Exit':
+        if selection == 'Exit':
             break
 
-        #Navigate to requested position
+        # Navigate to requested position
         navigator.startToPose(goal_options[index]['pose'])
 
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
