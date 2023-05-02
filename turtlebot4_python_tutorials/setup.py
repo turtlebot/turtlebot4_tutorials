@@ -27,6 +27,7 @@ setup(
             'follow_waypoints = turtlebot4_python_tutorials.follow_waypoints:main',
             'create_path = turtlebot4_python_tutorials.create_path:main',
             'patrol_loop = turtlebot4_python_tutorials.patrol_loop:main',
+            'mail_delivery = turtlebot4_python_tutorials.mail_delivery:main',
         ],
     },
 )
