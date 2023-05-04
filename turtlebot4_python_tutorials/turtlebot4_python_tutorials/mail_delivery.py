@@ -18,8 +18,6 @@
 
 from operator import itemgetter
 
-from pick import pick
-
 import rclpy
 
 from turtlebot4_navigation.turtlebot4_navigator import TurtleBot4Directions, TurtleBot4Navigator
@@ -66,18 +64,37 @@ def main(args=None):
          'pose': None}
     ]
 
-    message = 'Welcome to the mail delivery service. Choose the destination (use arrow keys).'
+    navigator.info('Welcome to the mail delivery service.')
 
     while True:
+        # Create a list of the goals for display
+        options_text = 'Please enter the number corresponding to the desired robot goal position:\n'
+        for i in range(len(goal_options)):
+            options_text += f'    {i}. {goal_options[i]["name"]}\n'
+
         # Prompt the user for the goal location
-        selection, index = pick(list(map(itemgetter('name'), goal_options)), message)
+        raw_input = input(f'{options_text}Selection: ')
+
+        selected_index = 0
+
+        # Verify that the value input is a number
+        try:
+            selected_index = int(raw_input)
+        except ValueError:
+            navigator.error(f'Invalid goal selection: {raw_input}')
+            continue
+
+        # Verify that the user input is within a valid range
+        if (selected_index < 0) or (selected_index >= len(goal_options)):
+            navigator.error(f'Goal selection out of bounds: {selected_index}')
 
         # Check for exit
-        if selection == 'Exit':
+        elif goal_options[selected_index]['name'] == 'Exit':
             break
 
-        # Navigate to requested position
-        navigator.startToPose(goal_options[index]['pose'])
+        else:
+            # Navigate to requested position
+            navigator.startToPose(goal_options[selected_index]['pose'])
 
     rclpy.shutdown()
 
