@@ -66,12 +66,12 @@ def main(args=None):
 
     while True:
         # Create a list of the goals for display
-        options_text = 'Please enter the number corresponding to the desired robot goal position:\n'
+        options_str = 'Please enter the number corresponding to the desired robot goal position:\n'
         for i in range(len(goal_options)):
-            options_text += f'    {i}. {goal_options[i]["name"]}\n'
+            options_str += f'    {i}. {goal_options[i]["name"]}\n'
 
         # Prompt the user for the goal location
-        raw_input = input(f'{options_text}Selection: ')
+        raw_input = input(f'{options_str}Selection: ')
 
         selected_index = 0
 
