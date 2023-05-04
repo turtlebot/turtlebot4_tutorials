@@ -16,6 +16,7 @@
 #
 # @author Hilary Luo (hluo@clearpathrobotics.com)
 
+from math import floor
 from threading import Lock, Thread
 from time import sleep
 
@@ -117,11 +118,16 @@ def main(args=None):
 
                 # Wait until charged
                 navigator.info('Charging...')
+                battery_percent_prev = 0
                 while (battery_percent < BATTERY_HIGH):
                     sleep(15)
+                    battery_percent_prev = floor(battery_percent*100)/100
                     with lock:
                         battery_percent = battery_monitor.battery_percent
-                    print(f'Battery is at {(battery_percent*100):.2f}% charge', end='\r')
+
+                    # Print charge level every time it increases a percent
+                    if battery_percent > (battery_percent_prev + 0.01):
+                        navigator.info(f'Battery is at {(battery_percent*100):.2f}% charge')
 
                 # Undock
                 navigator.undock()
