@@ -2,8 +2,8 @@
 Changelog for package turtlebot4_python_tutorials
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2023-05-17)
+------------------
 * Added mail delivery example
 * Add patrol loop example
 * Updated poses for the warehouse world
