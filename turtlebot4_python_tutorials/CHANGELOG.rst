@@ -2,6 +2,13 @@
 Changelog for package turtlebot4_python_tutorials
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added mail delivery example
+* Add patrol loop example
+* Updated poses for the warehouse world
+* Contributors: Hilary Luo, Roni Kreinin
+
 1.0.0 (2023-02-24)
 ------------------
 
