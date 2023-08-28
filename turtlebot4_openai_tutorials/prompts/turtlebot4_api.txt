@@ -1,0 +1,27 @@
+# Dock
+navigator.dock()
+# Undock
+navigator.undock()
+# Go to location 0.0, 1.0, facing North
+navigator.info('Moving to 0.0, 1.0, North')
+goal = navigator.getPoseStamped([0.0, 1.0], TurtleBot4Directions.NORTH)
+navigator.startToPose(goal)
+# Move to location -1.0, 5.0, facing South East
+navigator.info('Moving to -1.0, 5.0, South East')
+goal = navigator.getPoseStamped([-1.0, 5.0], TurtleBot4Directions.SOUTH_EAST)
+navigator.startToPose(goal)
+# Navigate to shelf
+dest = destinations['metal shelf']
+navigator.info('Moving to metal shelf')
+goal = navigator.getPoseStamped(dest[0:2], dest[2])
+navigator.startToPose(goal)
+# Navigate to wooden object
+dest = destinations['wooden crate']
+navigator.info('Moving to wooden crate')
+goal = navigator.getPoseStamped(dest[0:2], dest[2])
+navigator.startToPose(goal)
+# Go to forklift
+dest = destinations['forklift']
+navigator.info('Moving to forklift')
+goal = navigator.getPoseStamped(dest[0:2], dest[2])
+navigator.startToPose(goal)
