@@ -29,6 +29,7 @@ def generate_launch_description():
             package='turtlebot4_openai_tutorials',
             executable='natural_language_nav',
             output='screen',
+            emulate_tty=True,
             parameters=[
                 {'openai_api_key': LaunchConfiguration('openai_api_key')},
                 {'model_name': LaunchConfiguration('model_name')}

@@ -58,8 +58,8 @@ class GPTNode(Node):
         ) ['choices'][0]['message']['content'].strip()
 
         if log:
-            print(query)
-            print(response)
+            self.info(query)
+            self.info(response)
 
         return response
     
@@ -70,6 +70,7 @@ class GPTNode(Node):
         """
         # User input  
         query = input("Please enter request, or type 'exit' to exit> ")
+        self.info("Received query: " + query)
         if query == 'exit':
             return False
         # Add "# " to the start to match code samples
@@ -83,11 +84,27 @@ class GPTNode(Node):
             try:
                 exec(result, globals(), locals())
             except Exception as e:
-                navigator.error("Failure to execute resulting code:")
-                navigator.error("---------------\n"+result)
-                navigator.error("---------------")
+                self.error("Failure to execute resulting code:")
+                self.error("---------------\n"+result)
+                self.error("---------------")
 
         return True
+
+    def info(self, msg):
+        self.get_logger().info(msg)
+        return
+
+    def warn(self, msg):
+        self.get_logger().warn(msg)
+        return
+
+    def error(self, msg):
+        self.get_logger().error(msg)
+        return
+
+    def debug(self, msg):
+        self.get_logger().debug(msg)
+        return
 
 def read_prompt_file(prompt_file):
     """ Read in a specified file which is located in the package 'prompts' directory
@@ -110,6 +127,7 @@ def main():
 
     # No need to talk to robot if we're not executing
     if not PARKING_BRAKE:
+        gpt.warn("Parking brake not set, robot will execute commands!")
         # Start on dock
         if not navigator.getDockedStatus():
             navigator.info('Docking before initialising pose')
@@ -124,12 +142,14 @@ def main():
 
         # Undock
         navigator.undock()
+    else:
+        gpt.warn("Parking brake set, robot will not execute commands!")
     
     # Add custom context
     context = "destinations = {'iron crate': [0.0, 3.0, 0], 'steel barrels': [2.0, 2.0, 90], 'bathroom door': [-6.0, -6.0, 180] }"
     exec(context, globals())
-    navigator.info("Entering input parsing loop with context:")
-    navigator.info(context)
+    gpt.info("Entering input parsing loop with context:")
+    gpt.info(context)
     gpt.full_prompt = gpt.full_prompt + '\n' + context
 
     # Main loop
