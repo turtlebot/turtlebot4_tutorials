@@ -20,23 +20,29 @@ import os
 
 import rclpy, ament_index_python
 from rclpy.node import Node
+from std_msgs.msg import String, Bool
 from turtlebot4_navigation.turtlebot4_navigator import TurtleBot4Directions, TurtleBot4Navigator
 
 import openai
 
-PARKING_BRAKE = False # Set to false if you want the results to be executed
-
 class GPTNode(Node):
-    def __init__(self):
+    def __init__(self, navigator):
         super().__init__('gpt_node')
         self.declare_parameter('openai_api_key','')
         self.declare_parameter('model_name','gpt-3.5-turbo')
+        self.declare_parameter('parking_brake',True)
 
+        # OpenAI key, model, prompt setup
         openai.api_key = self.get_parameter('openai_api_key').value
         self.model_name = self.get_parameter('model_name').value
-
         self.prompts = []
         self.full_prompt = ""
+
+        # ROS stuff. Navigator node handle, topics
+        self.navigator = navigator
+        self.sub_input = self.create_subscription(String, 'user_input', self.user_input, 10)
+        self.pub_ready = self.create_publisher(Bool, 'ready_for_input', 10)
+        self.publish_status(False)
 
     def query(self, base_prompt, query, stop_tokens=None, query_kwargs=None, log=True):
         new_prompt = f'{base_prompt}\n{query}'
@@ -63,32 +69,37 @@ class GPTNode(Node):
 
         return response
     
-    def user_input(self, navigator, parking_brake=True):
-        """ Process user input and optionally execute resulting code
-        navigator: Instance of TurtleBot4Navigator
-        parking_brake: Set to false to execute
-        """
+    def publish_status(self, status):
+        """ Publish whether or not the system is ready for more input """
+        msg = Bool()
+        msg.data = status
+        self.ready_for_input = status
+        self.pub_ready.publish(msg)
+    
+    def user_input(self, msg):
+        """ Process user input and optionally execute resulting code """
         # User input  
-        query = input("Please enter request, or type 'exit' to exit> ")
-        self.info("Received query: " + query)
-        if query == 'exit':
-            return False
-        # Add "# " to the start to match code samples
-        query = '# ' + query
+        if not self.ready_for_input: 
+            # This doesn't seem to be an issue when there's only one publisher, but it's good practice
+            self.info(f"Received input <{msg.data}> when not ready, skipping")
+            return
+        self.publish_status(False)
+        self.info(f"Received input <{msg.data}>")
 
-        # Issue query
+        # Add "# " to the start to match code samples, issue query
+        query = '# ' + msg.data
         result = self.query(f'{self.full_prompt}', query, ['#', 'objects = ['])
 
         # Execute?
-        if not parking_brake:
+        navigator = self.navigator # This is because the example API calls 'navigator', not 'self.navigator'
+        if not self.get_parameter('parking_brake').value:
             try:
                 exec(result, globals(), locals())
             except Exception as e:
                 self.error("Failure to execute resulting code:")
                 self.error("---------------\n"+result)
                 self.error("---------------")
-
-        return True
+        self.publish_status(True)
 
     def info(self, msg):
         self.get_logger().info(msg)
@@ -119,14 +130,14 @@ def main():
     rclpy.init()
 
     navigator = TurtleBot4Navigator()
-    gpt = GPTNode()
+    gpt = GPTNode(navigator)
 
     gpt.prompts.append(read_prompt_file('turtlebot4_api.txt'))
     for p in gpt.prompts:
         gpt.full_prompt = gpt.full_prompt + '\n' + p
 
     # No need to talk to robot if we're not executing
-    if not PARKING_BRAKE:
+    if not gpt.get_parameter('parking_brake').value:
         gpt.warn("Parking brake not set, robot will execute commands!")
         # Start on dock
         if not navigator.getDockedStatus():
@@ -146,19 +157,22 @@ def main():
         gpt.warn("Parking brake set, robot will not execute commands!")
     
     # Add custom context
-    context = "destinations = {'iron crate': [0.0, 3.0, 0], 'steel barrels': [2.0, 2.0, 90], 'bathroom door': [-6.0, -6.0, 180] }"
+    context = "destinations = {'wood crate': [0.0, 3.0, 0], 'steel barrels': [2.0, 2.0, 90], 'bathroom door': [-6.0, -6.0, 180] }"
     exec(context, globals())
     gpt.info("Entering input parsing loop with context:")
     gpt.info(context)
     gpt.full_prompt = gpt.full_prompt + '\n' + context
 
     # Main loop
-    while rclpy.ok():
-        result = gpt.user_input(navigator, parking_brake=PARKING_BRAKE)
-        if not result:
-            break
+    gpt.publish_status(True)
+    try:
+        rclpy.spin(gpt)
+    except KeyboardInterrupt:
+        pass
 
     gpt.destroy_node()
+    navigator.destroy_node()
+
     rclpy.shutdown()
 
 if __name__ == '__main__':
