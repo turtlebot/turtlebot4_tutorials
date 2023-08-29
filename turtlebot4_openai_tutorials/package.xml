@@ -13,6 +13,7 @@
   <test_depend>python3-pytest</test_depend>
 
   <depend>rclpy</depend>
+  <depend>std_msgs</depend>
   <depend>turtlebot4_navigation</depend>
 
   <exec_depend>python-openai</exec_depend>
