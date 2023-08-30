@@ -21,11 +21,17 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
+
 def generate_launch_description():
     return LaunchDescription([
-        DeclareLaunchArgument('openai_api_key', default_value='', description='API key set up via https://platform.openai.com/account/api-keys'),
-        DeclareLaunchArgument('model_name', default_value='gpt-3.5-turbo', description='OpenAI model name as selected from https://platform.openai.com/docs/guides/gpt'),
-        DeclareLaunchArgument('parking_brake', default_value='true', description='Set to false to execute commands on the robot'),
+        DeclareLaunchArgument('openai_api_key', default_value='',
+                              description='API key set up via \
+                              https://platform.openai.com/account/api-keys'),
+        DeclareLaunchArgument('model_name', default_value='gpt-3.5-turbo',
+                              description='OpenAI model name as selected from \
+                              https://platform.openai.com/docs/guides/gpt'),
+        DeclareLaunchArgument('parking_brake', default_value='true',
+                              description='Set to false to execute commands on the robot'),
         Node(
             package='turtlebot4_openai_tutorials',
             executable='natural_language_nav',
