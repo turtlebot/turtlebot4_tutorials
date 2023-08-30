@@ -18,19 +18,21 @@
 
 import os
 
-import rclpy, ament_index_python
+import rclpy
+import ament_index_python
 from rclpy.node import Node
 from std_msgs.msg import String, Bool
 from turtlebot4_navigation.turtlebot4_navigator import TurtleBot4Directions, TurtleBot4Navigator
 
 import openai
 
+
 class GPTNode(Node):
     def __init__(self, navigator):
         super().__init__('gpt_node')
-        self.declare_parameter('openai_api_key','')
-        self.declare_parameter('model_name','gpt-3.5-turbo')
-        self.declare_parameter('parking_brake',True)
+        self.declare_parameter('openai_api_key', '')
+        self.declare_parameter('model_name', 'gpt-3.5-turbo')
+        self.declare_parameter('parking_brake', True)
 
         # OpenAI key, model, prompt setup
         openai.api_key = self.get_parameter('openai_api_key').value
@@ -61,26 +63,27 @@ class GPTNode(Node):
         ]
         response = openai.ChatCompletion.create(
             messages=messages, stop=stop_tokens, **use_query_kwargs
-        ) ['choices'][0]['message']['content'].strip()
+        )['choices'][0]['message']['content'].strip()
 
         if log:
             self.info(query)
             self.info(response)
 
         return response
-    
+
     def publish_status(self, status):
-        """ Publish whether or not the system is ready for more input """
+        """Publish whether or not the system is ready for more input."""
         msg = Bool()
         msg.data = status
         self.ready_for_input = status
         self.pub_ready.publish(msg)
-    
+
     def user_input(self, msg):
-        """ Process user input and optionally execute resulting code """
-        # User input  
-        if not self.ready_for_input: 
-            # This doesn't seem to be an issue when there's only one publisher, but it's good practice
+        """Process user input and optionally execute resulting code."""
+        # User input
+        if not self.ready_for_input:
+            # This doesn't seem to be an issue when there's only one publisher
+            # but it's good practice
             self.info(f"Received input <{msg.data}> when not ready, skipping")
             return
         self.publish_status(False)
@@ -90,12 +93,14 @@ class GPTNode(Node):
         query = '# ' + msg.data
         result = self.query(f'{self.full_prompt}', query, ['#', 'objects = ['])
 
+        # This is because the example API calls 'navigator', not 'self.navigator'
+        navigator = self.navigator
+
         # Execute?
-        navigator = self.navigator # This is because the example API calls 'navigator', not 'self.navigator'
         if not self.get_parameter('parking_brake').value:
             try:
                 exec(result, globals(), locals())
-            except Exception as e:
+            except Exception:
                 self.error("Failure to execute resulting code:")
                 self.error("---------------\n"+result)
                 self.error("---------------")
@@ -117,14 +122,15 @@ class GPTNode(Node):
         self.get_logger().debug(msg)
         return
 
+
 def read_prompt_file(prompt_file):
-    """ Read in a specified file which is located in the package 'prompts' directory
-    """
+    """Read in a specified file which is located in the package 'prompts' directory."""
     data_path = ament_index_python.get_package_share_directory('turtlebot4_openai_tutorials')
     prompt_path = os.path.join(data_path, 'prompts', prompt_file)
-    
+
     with open(prompt_path, 'r') as file:
         return file.read()
+
 
 def main():
     rclpy.init()
@@ -155,9 +161,10 @@ def main():
         navigator.undock()
     else:
         gpt.warn("Parking brake set, robot will not execute commands!")
-    
+
     # Add custom context
-    context = "destinations = {'wood crate': [0.0, 3.0, 0], 'steel barrels': [2.0, 2.0, 90], 'bathroom door': [-6.0, -6.0, 180] }"
+    context = "destinations = {'wood crate': [0.0, 3.0, 0], 'steel barrels': [2.0, 2.0, 90], \
+        'bathroom door': [-6.0, -6.0, 180] }"
     exec(context, globals())
     gpt.info("Entering input parsing loop with context:")
     gpt.info(context)
@@ -174,6 +181,7 @@ def main():
     navigator.destroy_node()
 
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
