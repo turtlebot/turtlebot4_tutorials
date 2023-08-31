@@ -18,20 +18,14 @@
 
 import os
 
-<<<<<<< HEAD
 import rclpy
 import ament_index_python
 from rclpy.node import Node
 from std_msgs.msg import String, Bool
-=======
-import rclpy, ament_index_python
-from rclpy.node import Node
->>>>>>> Working example
 from turtlebot4_navigation.turtlebot4_navigator import TurtleBot4Directions, TurtleBot4Navigator
 
 import openai
 
-<<<<<<< HEAD
 
 class GPTNode(Node):
     def __init__(self, navigator):
@@ -52,22 +46,6 @@ class GPTNode(Node):
         self.pub_ready = self.create_publisher(Bool, 'ready_for_input', 10)
         self.publish_status(False)
 
-=======
-PARKING_BRAKE = False # Set to false if you want the results to be executed
-
-class GPTNode(Node):
-    def __init__(self):
-        super().__init__('gpt_node')
-        self.declare_parameter('openai_api_key','')
-        self.declare_parameter('model_name','gpt-3.5-turbo')
-
-        openai.api_key = self.get_parameter('openai_api_key').value
-        self.model_name = self.get_parameter('model_name').value
-
-        self.prompts = []
-        self.full_prompt = ""
-
->>>>>>> Working example
     def query(self, base_prompt, query, stop_tokens=None, query_kwargs=None, log=True):
         new_prompt = f'{base_prompt}\n{query}'
         """ Query OpenAI API with a prompt and query """
@@ -85,7 +63,6 @@ class GPTNode(Node):
         ]
         response = openai.ChatCompletion.create(
             messages=messages, stop=stop_tokens, **use_query_kwargs
-<<<<<<< HEAD
         )['choices'][0]['message']['content'].strip()
 
         if log:
@@ -155,72 +132,19 @@ def read_prompt_file(prompt_file):
         return file.read()
 
 
-=======
-        ) ['choices'][0]['message']['content'].strip()
-
-        if log:
-            print(query)
-            print(response)
-
-        return response
-    
-    def user_input(self, navigator, parking_brake=True):
-        """ Process user input and optionally execute resulting code
-        navigator: Instance of TurtleBot4Navigator
-        parking_brake: Set to false to execute
-        """
-        # User input  
-        query = input("Please enter request, or type 'exit' to exit> ")
-        if query == 'exit':
-            return False
-        # Add "# " to the start to match code samples
-        query = '# ' + query
-
-        # Issue query
-        result = self.query(f'{self.full_prompt}', query, ['#', 'objects = ['])
-
-        # Execute?
-        if not parking_brake:
-            try:
-                exec(result, globals(), locals())
-            except Exception as e:
-                navigator.error("Failure to execute resulting code:")
-                navigator.error("---------------\n"+result)
-                navigator.error("---------------")
-
-        return True
-
-def read_prompt_file(prompt_file):
-    """ Read in a specified file which is located in the package 'prompts' directory
-    """
-    data_path = ament_index_python.get_package_share_directory('turtlebot4_openai_tutorials')
-    prompt_path = os.path.join(data_path, 'prompts', prompt_file)
-    
-    with open(prompt_path, 'r') as file:
-        return file.read()
-
->>>>>>> Working example
 def main():
     rclpy.init()
 
     navigator = TurtleBot4Navigator()
-<<<<<<< HEAD
     gpt = GPTNode(navigator)
-=======
-    gpt = GPTNode()
->>>>>>> Working example
 
     gpt.prompts.append(read_prompt_file('turtlebot4_api.txt'))
     for p in gpt.prompts:
         gpt.full_prompt = gpt.full_prompt + '\n' + p
 
     # No need to talk to robot if we're not executing
-<<<<<<< HEAD
     if not gpt.get_parameter('parking_brake').value:
         gpt.warn("Parking brake not set, robot will execute commands!")
-=======
-    if not PARKING_BRAKE:
->>>>>>> Working example
         # Start on dock
         if not navigator.getDockedStatus():
             navigator.info('Docking before initialising pose')
@@ -235,7 +159,6 @@ def main():
 
         # Undock
         navigator.undock()
-<<<<<<< HEAD
     else:
         gpt.warn("Parking brake set, robot will not execute commands!")
 
@@ -262,24 +185,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-=======
-    
-    # Add custom context
-    context = "destinations = {'iron crate': [0.0, 3.0, 0], 'steel barrels': [2.0, 2.0, 90], 'bathroom door': [-6.0, -6.0, 180] }"
-    exec(context, globals())
-    navigator.info("Entering input parsing loop with context:")
-    navigator.info(context)
-    gpt.full_prompt = gpt.full_prompt + '\n' + context
-
-    # Main loop
-    while rclpy.ok():
-        result = gpt.user_input(navigator, parking_brake=PARKING_BRAKE)
-        if not result:
-            break
-
-    gpt.destroy_node()
-    rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
->>>>>>> Working example

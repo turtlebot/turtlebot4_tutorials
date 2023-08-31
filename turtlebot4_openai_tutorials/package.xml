@@ -13,13 +13,10 @@
   <test_depend>python3-pytest</test_depend>
 
   <depend>rclpy</depend>
-<<<<<<< HEAD
   <depend>std_msgs</depend>
-=======
->>>>>>> Working example
   <depend>turtlebot4_navigation</depend>
 
-  <exec_depend>python-openai</exec_depend>
+  <exec_depend>python3-openai-pip</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>

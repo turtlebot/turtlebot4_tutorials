@@ -15,17 +15,11 @@ setup(
         # Package.xml
         ('share/' + package_name, ['package.xml']),
         # Launch files
-<<<<<<< HEAD
         (os.path.join('share', package_name, 'launch'),
          glob(os.path.join('launch', '*launch.py'))),
         # Prompt files
         (os.path.join('share', package_name, 'prompts'),
          glob(os.path.join('prompts', '*.txt'))),
-=======
-        (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.py'))),
-        # Prompt files
-        (os.path.join('share', package_name, 'prompts'), glob(os.path.join('prompts', '*.txt'))),
->>>>>>> Working example
     ],
     install_requires=['setuptools'],
     zip_safe=True,
