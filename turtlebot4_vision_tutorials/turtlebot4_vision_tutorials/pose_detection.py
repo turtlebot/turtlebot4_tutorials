@@ -42,6 +42,33 @@ SEMAPHORE_FLAG = {
         (1, 6): 'Y', (5, 6): 'Z',
 }
 
+# Semaphore letters that indicate to drive left
+LEFT_LETTERS = [
+    'B',
+    'C',
+    'H',
+    'I',
+    'O',
+    'S',
+]
+
+# Semaphore letters that indicate to drive right
+RIGHT_LETTERS = [
+    'E',
+    'F',
+    'M',
+    'W',
+    'X',
+    'Z',
+]
+
+# Semaphore letters that indicate to drive forward
+FORWARD_LETTERS = [
+    'T',
+    'U',
+    '#'
+]
+
 KEYPOINT_DICT = {
     'nose': 0,
     'left_eye': 1,
@@ -215,21 +242,21 @@ class PoseDetection(Node):
         right_pose = int((right_arm_angle + 202.5) / 45) % 8
         left_pose = int((left_arm_angle + 202.5) / 45) % 8
         letter = SEMAPHORE_FLAG.get((right_pose, left_pose), None)
+
         dir_temp = Dir.STOP
-        if right_pose == 2 and (left_pose > 3 and left_pose < 6):
+        if letter in LEFT_LETTERS:
             dir_temp = Dir.LEFT
-            self.lights_blue_ = True
-        elif left_pose == 6 and (right_pose > 2 and right_pose < 5):
+        elif letter in RIGHT_LETTERS:
             dir_temp = Dir.RIGHT
-        elif (left_pose > 6 or left_pose == 0) and right_pose < 2:
+        elif letter in FORWARD_LETTERS:
             dir_temp = Dir.STRAIGHT
-        if dir_temp != Dir.STOP:
-            self.lights_blue_ = True
+
         if dir_temp == self.dir:
             self.dir_confirm += 1
         else:
             self.dir_confirm = 1
             self.dir = dir_temp
+
         if self.dir_confirm > 4:
             cmd_vel_msg = Twist()
             if self.dir == Dir.LEFT:
