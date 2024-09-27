@@ -257,6 +257,8 @@ class PoseDetection(Node):
             self.dir_confirm = 1
             self.dir = dir_temp
 
+        self.lights_blue_ = self.dir != Dir.STOP
+
         if self.dir_confirm >= 3:
             cmd_vel_msg = Twist()
             if self.dir == Dir.LEFT:
