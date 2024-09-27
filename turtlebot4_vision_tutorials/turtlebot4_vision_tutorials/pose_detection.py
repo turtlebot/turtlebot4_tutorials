@@ -213,7 +213,7 @@ class PoseDetection(Node):
             # Stamp the message with the current time
             flag_msg.data = letter
             self.semaphore_flag_publisher.publish(flag_msg)
-            self.get_logger().info('Letter detected is: ' + letter)
+            self.get_logger().info(f'Letter detected is: {letter}')
 
         self.autonomous_lights()
 
@@ -257,7 +257,7 @@ class PoseDetection(Node):
             self.dir_confirm = 1
             self.dir = dir_temp
 
-        if self.dir_confirm > 4:
+        if self.dir_confirm >= 3:
             cmd_vel_msg = Twist()
             if self.dir == Dir.LEFT:
                 cmd_vel_msg.angular.z = 0.4
