@@ -141,7 +141,7 @@ class PoseDetection(Node):
             10,
         )
 
-        self._is_paused = False
+        self.is_paused_ = False
 
         self.start_camera_srv = self.create_service(
             Trigger,
@@ -175,7 +175,7 @@ class PoseDetection(Node):
     #         self.button_1_function()
 
     def pose_detect(self):
-        if self._is_paused:
+        if self.is_paused_:
             return
 
         if not (POSE_DETECT_ENABLE):
@@ -326,8 +326,9 @@ class PoseDetection(Node):
         self.lightring_publisher.publish(lightring_msg)
 
     def handle_start_camera(self, req, resp):
-        if self._is_paused:
-            self._is_paused = False
+        if self.is_paused_:
+            self.is_paused_ = False
+            self.lights_blue_ = False
             self.pose = MovenetDepthai(input_src='rgb',
                                        model='thunder',
                                        score_thresh=0.3,
@@ -340,8 +341,9 @@ class PoseDetection(Node):
         return resp
 
     def handle_stop_camera(self, req, resp):
-        if not self._is_paused:
-            self._is_paused = True
+        if not self.is_paused_:
+            self.is_paused_ = True
+            self.lights_blue_ = False
             self.pose.device.close()
             self.pose = None
             resp.success = True
