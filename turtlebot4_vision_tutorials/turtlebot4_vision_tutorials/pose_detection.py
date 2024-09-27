@@ -145,13 +145,13 @@ class PoseDetection(Node):
 
         self.start_camera_srv = self.create_service(
             Trigger,
-            'start_camera',
+            'oakd/start_camera',
             self.handle_start_camera
         )
 
         self.stop_camera_srv = self.create_service(
             Trigger,
-            'stop_camera',
+            'oakd/stop_camera',
             self.handle_stop_camera
         )
 
