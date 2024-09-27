@@ -10,13 +10,16 @@ import marshal
 
 from turtlebot4_vision_tutorials.FPS import FPS
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-MOVENET_LIGHTNING_MODEL = os.path.join(SCRIPT_DIR.parent,
+from ament_index_python.packages import get_package_share_directory
+
+SHARE_DIR = get_package_share_directory('turtlebot4_vision_tutorials')
+MOVENET_LIGHTNING_MODEL = os.path.join(SHARE_DIR,
                                        "models",
                                        "movenet_singlepose_lightning_U8_transpose.blob")
-MOVENET_THUNDER_MODEL = os.path.join(SCRIPT_DIR.parent,
+MOVENET_THUNDER_MODEL = os.path.join(SHARE_DIR,
                                      "models",
                                      "movenet_singlepose_thunder_U8_transpose.blob")
+TEMPLATE_DIR = os.path.join(SHARE_DIR, 'templates')
 
 # Dictionary that maps from joint names to keypoint indices.
 KEYPOINT_DICT = {
@@ -308,7 +311,7 @@ class MovenetDepthai:
         which is a python template
         '''
         # Read the template
-        with open(os.path.join(SCRIPT_DIR, 'template_processing_script.py'), 'r') as file:
+        with open(os.path.join(TEMPLATE_DIR, 'template_processing_script.py'), 'r') as file:
             template = Template(file.read())
 
         # Perform the substitution
@@ -346,7 +349,6 @@ class MovenetDepthai:
         return body
 
     def next_frame(self):
-
         self.fps.update()
 
         # Get the device camera frame if wanted

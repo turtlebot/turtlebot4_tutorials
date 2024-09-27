@@ -90,14 +90,14 @@ def pd_postprocess(inference, crop_region):
         xnorm.append(xn)
         ynorm.append(yn)
         scores.append(inference[3*i+2])
-        x.append(int(xmin + xn * size)) 
-        y.append(int(ymin + yn * size)) 
-          
+        x.append(int(xmin + xn * size))
+        y.append(int(ymin + yn * size))
+
     next_crop_region = determine_crop_region(scores, x, y) if ${_smart_crop} else init_crop_region
     return x, y, xnorm, ynorm, scores, next_crop_region
 
 node.warn("Processing node started")
-# Defines the default crop region (pads the full image from both sides to make it a square image) 
+# Defines the default crop region (pads the full image from both sides to make it a square image)
 # Used when the algorithm cannot reliably determine the crop region from the previous frame.
 init_crop_region = ${_init_crop_region}
 crop_region = init_crop_region

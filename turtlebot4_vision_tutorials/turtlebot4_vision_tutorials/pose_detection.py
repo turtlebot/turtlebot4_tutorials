@@ -24,6 +24,7 @@ from geometry_msgs.msg import Pose, PoseArray, Twist
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String as string_msg
+from std_srvs.srv import Trigger
 from sensor_msgs.msg import Image
 
 from irobot_create_msgs.msg import LightringLeds
@@ -113,6 +114,20 @@ class PoseDetection(Node):
             10,
         )
 
+        self._is_paused = False
+
+        self.start_camera_srv = self.create_service(
+            Trigger,
+            'start_camera',
+            self.handle_start_camera
+        )
+
+        self.stop_camera_srv = self.create_service(
+            Trigger,
+            'stop_camera',
+            self.handle_stop_camera
+        )
+
         timer_period = 0.0833  # seconds
         self.timer = self.create_timer(timer_period, self.pose_detect)
 
@@ -133,6 +148,9 @@ class PoseDetection(Node):
     #         self.button_1_function()
 
     def pose_detect(self):
+        if self._is_paused:
+            return
+
         if not (POSE_DETECT_ENABLE):
             return
         # Run movenet on next frame
@@ -277,6 +295,30 @@ class PoseDetection(Node):
 
         # Publish the message
         self.lightring_publisher.publish(lightring_msg)
+
+    def handle_start_camera(self, req, resp):
+        if self._is_paused:
+            self._is_paused = False
+            self.pose = MovenetDepthai(input_src='rgb',
+                                       model='thunder',
+                                       score_thresh=0.3,
+                                       crop=not 'store_true',
+                                       smart_crop=not 'store_true',
+                                       internal_frame_height=432)
+            resp.success = True
+        else:
+            resp.message = 'Device already running'
+        return resp
+
+    def handle_stop_camera(self, req, resp):
+        if not self._is_paused:
+            self._is_paused = True
+            self.pose.device.close()
+            self.pose = None
+            resp.success = True
+        else:
+            resp.message = 'Device already stopped'
+        return resp
 
 
 def main(args=None):
