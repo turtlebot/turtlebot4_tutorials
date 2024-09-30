@@ -32,6 +32,20 @@ from turtlebot4_vision_tutorials.MovenetDepthaiEdge import MovenetDepthai
 
 POSE_DETECT_ENABLE = True
 
+# keys:
+#   (right, left) where each value is the angle with the horiziontal
+#   quantized into 8 regions
+#   Human facing camera
+#
+#   R     0     0      L
+#      1           7
+#            O
+#    2    +--+--+    6
+#         | \|/ |
+#      3  | +++ |  5
+#           | |
+#         4 | | 4
+#          -+ +-
 SEMAPHORE_FLAG = {
         (4, 7): 'E', (4, 6): 'F', (4, 5): 'G', (2, 3): 'H',
         (3, 4): 'A', (2, 4): 'B', (1, 4): 'C', (0, 4): 'D',
@@ -40,6 +54,13 @@ SEMAPHORE_FLAG = {
         (2, 7): 'Q', (2, 6): 'R', (2, 5): 'S', (1, 0): 'T',
         (1, 7): 'U', (0, 5): 'V', (7, 6): 'W', (7, 5): 'X',
         (1, 6): 'Y', (5, 6): 'Z',
+
+        # Extended semaphore signals
+        (0, 7): '#', (4, 4): ' ', (1, 5): 'DEL',
+
+        # Not official semaphore, but allow the "touchdown" referee signal
+        # with both arms held vertically above the head
+        (0, 0): 'TD',
 }
 
 # Semaphore letters that indicate to drive left
@@ -66,7 +87,8 @@ RIGHT_LETTERS = [
 FORWARD_LETTERS = [
     'T',
     'U',
-    '#'
+    '#',
+    'TD',
 ]
 
 KEYPOINT_DICT = {
